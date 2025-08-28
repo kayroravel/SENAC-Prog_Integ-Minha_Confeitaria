@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produtos - Doce Atelier</title>
+    <link rel="stylesheet" href="../css/cadastroprodutos.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-amber-50">
+    <!-- Header -->
+    <header class="bg-white shadow-md py-4 fixed w-full top-0 z-50">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="./dashboard.html" class="text-2xl font-bold text-amber-800 hover:text-amber-600 transition">
+                    <img id="img-logo" src="../assets/header_logo.png" alt="Doçura" class="h-24 max-h-20">
+                </a>
+            </div>
+            <nav class="flex items-center space-x-4">
+                <a href="../index.html"
+                    class="text-amber-800 hover:text-amber-600 transition-colors font-semibold text-lg">Ver
+                    Loja</a>
+                <button id="gerenciarCategoriasBtn"
+                    class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg">
+                    Gerenciar Categorias
+                </button>
+                <button onclick="logout()"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-colors">Sair</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-16">
+        <div class="container mx-auto px-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-amber-800 mb-12">Cadastro de Produtos</h1>
+
+            <!-- Product Form -->
+            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+                <form id="product-form" class="space-y-6">
+                    <!-- Product Image -->
+                    <div>
+                        <label class="block text-gray-700 mb-2">Imagem do Produto</label>
+                        <div class="flex items-center justify-center w-full">
+                            <label for="product-image"
+                                class="flex flex-col items-center justify-center w-full h-64 border-2 border-amber-300 border-dashed rounded-lg cursor-pointer bg-amber-50 hover:bg-amber-100">
+                                <div id="image-preview-content"
+                                    class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <i class="fas fa-camera text-amber-400 text-4xl mb-3"></i>
+                                    <p class="mb-2 text-sm text-gray-500">Clique para adicionar uma imagem</p>
+                                </div>
+                                <input id="product-image" name="imagem" type="file" class="hidden" accept="image/*">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="product-name" class="block text-gray-700 mb-2">Nome do Produto</label>
+                            <input type="text" id="product-name" required
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+
+                        <div>
+                            <label for="product-price" class="block text-gray-700 mb-2">Preço (R$)</label>
+                            <input type="number" id="product-price" step="0.01" min="0" required
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="product-category" class="block text-gray-700 mb-2">Categoria</label>
+                        <select id="product-category" required
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <option value="">Selecione uma categoria</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="product-description" class="block text-gray-700 mb-2">Descrição</label>
+                        <textarea id="product-description" rows="4" required
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <div class="flex justify-end space-x-4 pt-4">
+                            <button type="reset"
+                                class="px-6 py-2 border border-amber-600 text-amber-600 rounded-lg hover:bg-amber-50 transition">
+                                Limpar
+                            </button>
+                            <button type="submit"
+                                class="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+                                Salvar Produto
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        </div>
+    </main>
+
+    <div id="categorias-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 p-8 relative">
+            <button id="closeCategoriasModal"
+                class="absolute top-4 right-4 text-gray-600 hover:text-black transition-colors text-3xl">
+                &times;
+            </button>
+            <h3 class="text-3xl font-extrabold text-amber-800 mb-6 text-center tracking-wide">Gerenciar Categorias</h3>
+            <div class="mb-6 border-b pb-6">
+                <h4 class="text-xl font-bold text-amber-800 mb-4">Adicionar Nova Categoria</h4>
+                <form id="add-categoria-form" class="flex flex-col md:flex-row gap-4 items-end">
+                    <div class="flex-grow w-full">
+                        <label for="new-categoria-nome"
+                            class="block text-sm font-semibold text-gray-700 mb-1">Nome</label>
+                        <input type="text" id="new-categoria-nome"
+                            class="w-full bg-gray-100 text-gray-800 border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Ex: Bolos, Doces Finos..." required />
+                    </div>
+                    <div class="flex-grow w-full">
+                        <label for="new-categoria-descricao"
+                            class="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
+                        <input type="text" id="new-categoria-descricao"
+                            class="w-full bg-gray-100 text-gray-800 border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Breve descrição da categoria" required />
+                    </div>
+                    <button type="submit"
+                        class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
+                        Adicionar
+                    </button>
+                </form>
+            </div>
+            <div>
+                <h4 class="text-xl font-bold text-amber-800 mb-4">Categorias Existentes</h4>
+                <div id="listaCategorias" class="flex flex-col gap-3 max-h-64 overflow-y-auto pr-2">
+                    <p class="text-center text-gray-500">Nenhuma categoria encontrada.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="editar-categoria-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 relative">
+            <button id="closeEditarCategoriaModal"
+                class="absolute top-4 right-4 text-gray-600 hover:text-black transition-colors text-3xl">
+                &times;
+            </button>
+            <h3 class="text-3xl font-extrabold text-amber-800 mb-6 text-center tracking-wide">Editar Categoria</h3>
+            <form id="editar-categoria-form" class="space-y-4">
+                <input type="hidden" id="edit-categoria-original-nome">
+                <div>
+                    <label for="edit-categoria-nome" class="block text-sm font-semibold text-gray-700 mb-1">Nome</label>
+                    <input type="text" id="edit-categoria-nome"
+                        class="w-full bg-gray-100 text-gray-800 border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                        required />
+                </div>
+                <div>
+                    <label for="edit-categoria-descricao"
+                        class="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
+                    <input type="text" id="edit-categoria-descricao"
+                        class="w-full bg-gray-100 text-gray-800 border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                        required />
+                </div>
+                <button type="submit"
+                    class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
+                    Salvar Alterações
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-amber-900 text-white py-8">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0 flex flex-col items-center md:items-center">
+                    <a href="#" class="text-2xl font-bold text-white hover:text-amber-200 transition">
+                        <img id="img-logo" src="img/Doce_Atelier-Logo-PB.png" alt="Doçura">
+                    </a>
+                    <p class="mt-2 text-white">Confeitaria Artesanal</p>
+                </div>
+                <div class="flex flex-col items-center md:items-end">
+                    <p>&copy; 2025 Doçura. Todos os direitos reservados.</p>
+                    <p class="text-amber-200">Cardápio Digital</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let categorias = [];
+        const token = localStorage.getItem('token');
+
+        function fecharModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function showAlert(message) {
+            alert(message);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            gerarOpcoesCategorias();
+
+            // Event Listeners para botões e modais
+            document.getElementById('gerenciarCategoriasBtn').addEventListener('click', abrirModalCategorias);
+            document.getElementById('closeCategoriasModal').addEventListener('click', () => fecharModal('categorias-modal'));
+            document.getElementById('closeEditarCategoriaModal').addEventListener('click', () => fecharModal('editar-categoria-modal'));
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    fecharModal('categorias-modal');
+                    fecharModal('editar-categoria-modal');
+                }
+            });
+
+            // Formulários
+            document.getElementById('add-categoria-form').addEventListener('submit', adicionarCategoria);
+            document.getElementById('editar-categoria-form').addEventListener('submit', salvarEdicaoCategoria);
+
+            const form = document.getElementById("product-form");
+            const previewContent = document.getElementById('image-preview-content');
+            const imagemInput = document.getElementById("product-image");
+
+            // Pré-visualização da imagem
+            imagemInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        previewContent.innerHTML = `<img src="${event.target.result}" class="max-h-64 rounded-lg" alt="Preview">`;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewContent.innerHTML = `
+                    <i class="fas fa-camera text-amber-400 text-4xl mb-3"></i>
+                    <p class="mb-2 text-sm text-gray-500">Clique para adicionar uma imagem</p>
+                `;
+                }
+            });
+
+            // Envio do formulário de produto
+            form.addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData();
+                const nome = document.getElementById('product-name').value;
+                let preco = document.getElementById('product-price').value;
+                const nome_categoria = document.getElementById('product-category').value;
+                const descricao = document.getElementById('product-description').value;
+                const imagem = imagemInput?.files?.[0] ?? null;
+
+                if (!nome || !preco || !nome_categoria || !descricao) {
+                    showAlert("Preencha todos os campos obrigatórios.");
+                    return;
+                }
+
+                preco = parseFloat(preco);
+                if (isNaN(preco) || preco <= 0) {
+                    showAlert("Por favor, insira um preço válido.");
+                    return;
+                }
+
+                formData.append('nome', nome);
+                formData.append('preco', preco);
+                formData.append('nome_categoria', nome_categoria);
+                formData.append('descricao', descricao);
+
+                if (imagem) {
+                    formData.append('imagem', imagem);
+                }
+
+                try {
+                    const headers = new Headers();
+                    headers.append('Authorization', `Bearer ${token}`);
+
+                    const response = await fetch('/api/produtos', {
+                        method: 'POST',
+                        headers: headers,
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(errorText);
+                    }
+
+                    showAlert('Produto criado com sucesso!');
+                    form.reset();
+                    previewContent.innerHTML = `
+                    <i class="fas fa-camera text-amber-400 text-4xl mb-3"></i>
+                    <p class="mb-2 text-sm text-gray-500">Clique para adicionar uma imagem</p>
+                `;
+                } catch (error) {
+                    console.error('Erro ao criar o produto:', error);
+                    showAlert(`Erro ao criar o produto: ${error.message}`);
+                }
+            });
+
+            // Adiciona event listeners para animações e navegação (como no seu código original)
+            window.addEventListener('scroll', () => {
+                const header = document.querySelector('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('shadow-lg');
+                } else {
+                    header.classList.remove('shadow-lg');
+                }
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+        });
+
+        // Funções de Categoria
+        async function carregarCategorias() {
+      try {
+        const res = await fetch('/api/categorias');
+        if (!res.ok) throw new Error('Erro ao carregar categorias');
+        categorias = await res.json();
+        const select = document.getElementById('category');
+        select.innerHTML = '';
+        categorias.forEach(c => {
+          const option = document.createElement('option');
+          option.value = c.nome;
+          option.textContent = c.nome.charAt(0).toUpperCase() + c.nome.slice(1);
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Erro ao buscar categorias:', error);
+      }
+    } 
+        async function gerarOpcoesCategorias() {
+            try {
+                const response = await fetch('/api/categorias');
+                if (!response.ok) throw new Error('Erro ao carregar categorias');
+                const categorias = await response.json();
+                const select = document.getElementById('product-category');
+                select.innerHTML = '<option value="">Selecione uma categoria</option>';
+                categorias.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.nome;
+                    option.textContent = c.nome.charAt(0).toUpperCase() + c.nome.slice(1);
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erro ao buscar categorias:', error);
+                showAlert('Erro ao carregar categorias.');
+            }
+        }
+
+        async function carregarListaCategorias() {
+            try {
+                const res = await fetch('/api/categorias');
+                if (!res.ok) throw new Error('Erro ao carregar categorias');
+                const categorias = await res.json();
+                const lista = document.getElementById('listaCategorias');
+                lista.innerHTML = '';
+                if (categorias.length === 0) {
+                    lista.innerHTML = '<p class="text-center text-gray-500">Nenhuma categoria cadastrada.</p>';
+                    return;
+                }
+                categorias.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-gray-50 rounded-lg shadow-sm p-4 flex items-center justify-between transition-colors hover:bg-gray-100';
+                    div.innerHTML = `
+                    <div>
+                        <h5 class="text-lg font-semibold text-gray-900">${c.nome.charAt(0).toUpperCase() + c.nome.slice(1)}</h5>
+                        <p class="text-sm text-gray-600">${c.descricao}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="abrirModalEdicaoCategoria('${c.nome}', '${c.descricao}')"
+                            class="bg-yellow-500 text-white px-2 py-1 rounded-lg font-semibold hover:bg-yellow-600 transition-colors text-xs">
+                            Editar
+                        </button>
+                        <button onclick="deletarCategoria('${c.nome}')"
+                            class="bg-red-500 text-white px-2 py-1 rounded-lg font-semibold hover:bg-red-600 transition-colors text-xs">
+                            Excluir
+                        </button>
+                    </div>
+                `;
+                    lista.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar lista de categorias:', error);
+                document.getElementById('listaCategorias').innerHTML = '<p class="text-center text-red-500">Erro ao carregar categorias.</p>';
+            }
+        }
+
+        async function abrirModalCategorias() {
+            const modal = document.getElementById('categorias-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            await carregarListaCategorias();
+        }
+
+        async function adicionarCategoria(e) {
+            e.preventDefault();
+            const nome = document.getElementById('new-categoria-nome').value;
+            const descricao = document.getElementById('new-categoria-descricao').value;
+            const novaCategoria = { nome, descricao };
+            try {
+                const response = await fetch('/api/categorias', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(novaCategoria)
+                });
+                if (!response.ok) throw new Error('Falha ao adicionar categoria.');
+                showAlert("Categoria adicionada com sucesso!");
+                document.getElementById('add-categoria-form').reset();
+                await carregarListaCategorias();
+                await carregarCategorias(); 
+                await gerarOpcoesCategorias();
+            } catch (err) {
+                console.error('Erro ao adicionar categoria:', err);
+                showAlert('Erro ao adicionar categoria.');
+            }
+        }
+
+        function abrirModalEdicaoCategoria(nome, descricao) {
+            document.getElementById('edit-categoria-original-nome').value = nome;
+            document.getElementById('edit-categoria-nome').value = nome;
+            document.getElementById('edit-categoria-descricao').value = descricao;
+            fecharModal('categorias-modal');
+            const modal = document.getElementById('editar-categoria-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        async function salvarEdicaoCategoria(e) {
+            e.preventDefault();
+            const nomeOriginal = document.getElementById('edit-categoria-original-nome').value;
+            const novoNome = document.getElementById('edit-categoria-nome').value;
+            const descricao = document.getElementById('edit-categoria-descricao').value;
+            const categoriaAtualizada = { nome: novoNome, descricao };
+            try {
+                const response = await fetch(`/api/categorias/${nomeOriginal}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(categoriaAtualizada)
+                });
+                if (!response.ok) throw new Error('Falha ao atualizar categoria.');
+                showAlert("Categoria atualizada com sucesso!");
+                fecharModal('editar-categoria-modal');
+                await carregarListaCategorias();
+                 await carregarCategorias();
+                await gerarOpcoesCategorias();
+            } catch (err) {
+                console.error('Erro ao atualizar categoria:', err);
+                showAlert('Erro ao atualizar categoria.');
+            }
+        }
+
+        async function deletarCategoria(nome) {
+            const confirmacao = confirm("Tem certeza que deseja deletar esta categoria? Todos os produtos vinculados a ela ficarão sem categoria!");
+            if (!confirmacao) return;
+            try {
+                const resposta = await fetch(`/api/categorias/${nome}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+                if (!resposta.ok) throw new Error(`Erro ao deletar categoria: ${resposta.status}`);
+                showAlert("Categoria deletada com sucesso!");
+                await carregarListaCategorias();
+                await gerarOpcoesCategorias();
+            } catch (erro) {
+                console.error('Erro ao deletar categoria:', erro);
+                showAlert('Não foi possível deletar a categoria. Verifique o console.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.reload();
+        }
+    </script>
+
+</body>
+
+</html>
