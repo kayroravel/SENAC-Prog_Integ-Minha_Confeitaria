@@ -4,7 +4,9 @@ const { Client } = require('pg');
 require('dotenv').config();
 
 async function runInitSQL() {
-  const sqlPath = path.join(__dirname, 'init.sql');
+  // const sqlPath = path.join(__dirname, 'init.sql');
+  // Ajuste o caminho para subir um nível e acessar o init.sql
+  const sqlPath = path.join(__dirname, '..', 'init.sql');
   const sql = fs.readFileSync(sqlPath, 'utf8');
 
   console.log("DB_USER:", process.env.DB_USER);
